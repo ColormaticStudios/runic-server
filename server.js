@@ -27,7 +27,6 @@ var game_data = {
 	}
 }
 var nodes = new Set();
-nodes.add(new Engine.node(new Engine.vector(70, 70), 0, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
 var characters = new Set();
 var server_fps = 20;
 var player_render_distance = 1000;
@@ -156,3 +155,17 @@ function server_tick() {
 }
 
 setInterval(server_tick, 1000 / server_fps);
+
+function create_boulder(position) {
+    nodes.add(new Engine.node(position, 0, game_data.world.biome.forest.boulder.radius, game_data.world.biome.forest.boulder.size, "boulder"));
+}
+function create_tree(position) {
+    nodes.add(new Engine.node(position, 0, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
+}
+
+function generate_world() {
+    create_tree(new Engine.vector(70, 70));
+    create_boulder(new Engine.vector(-100, 0));
+}
+
+generate_world();
