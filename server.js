@@ -27,7 +27,7 @@ var game_data = {
 	}
 }
 var nodes = new Set();
-nodes.add(new Engine.node(new Engine.vector(10, 10), 0, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
+nodes.add(new Engine.node(new Engine.vector(70, 70), 0, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
 var characters = new Set();
 var server_fps = 20;
 var player_render_distance = 1000;
@@ -102,7 +102,7 @@ server.on("connection", function (socket, request) {
     this_player.id = Engine.create_id();
     characters.add(this_player);
 
-    //socket.send(JSON.stringify({"type": "server_data", "data": {"fps": server_fps}}));
+    socket.send(JSON.stringify({"type": "server_data", "data": {"fps": server_fps}}));
 	socket.send(JSON.stringify({"type": "world", "data": Array.from(nodes)}));
 	console.log("a client has connected");
 
