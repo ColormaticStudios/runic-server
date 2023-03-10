@@ -53,14 +53,12 @@ function message(type, data, from) {
         if ("position" in data) {
             try {
                 let new_position = new Engine.vector(data.position.x, data.position.y);
-                //console.log(new_position);
                 if (from.position.distance_to(new_position) <= max_player_speed / server_fps) {
                     from.position.x = new_position.x;
                     from.position.y = new_position.y;
                 }
                 else {
-                    console.log(from.username + " moved too fast!");
-                    console.log(from.position.distance_to(new_position));
+                    //console.log(from.username + " moved too fast!");
                     var to_send = {
                         "type": "position_update",
                         "data": {
@@ -127,7 +125,17 @@ server.on("connection", function (socket, request) {
 	});
 });
 
+function do_collisions() {
+    characters.forEach(function(this_character) {
+        nodes.forEach(function(this_node) {
+            Engine.collide(this_node, this_character);
+        });
+    });
+}
+
 function server_tick() {
+    do_collisions();
+
     var char_array = Array.from(characters);
     //send other players
     for (let this_player_num in char_array) {
@@ -156,16 +164,31 @@ function server_tick() {
 
 setInterval(server_tick, 1000 / server_fps);
 
-function create_boulder(position) {
-    nodes.add(new Engine.node(position, 0, game_data.world.biome.forest.boulder.radius, game_data.world.biome.forest.boulder.size, "boulder"));
+function random_rot() {
+    let rot = Math.floor(Math.random() * 360);
+    let rot_rad = rot * (Math.PI/180);
+    return rot_rad;
 }
-function create_tree(position) {
-    nodes.add(new Engine.node(position, 0, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
+function random_pos() {
+    return new Engine.vector((Math.random() * 10000)-5000, (Math.random() * 10000)-5000);
+}
+
+function create_boulder(position, rotation) {
+    nodes.add(new Engine.node(position, rotation, game_data.world.biome.forest.boulder.radius, game_data.world.biome.forest.boulder.size, "boulder"));
+}
+function create_tree(position, rotation) {
+    nodes.add(new Engine.node(position, rotation, game_data.world.biome.forest.tree.radius, game_data.world.biome.forest.tree.size, "tree"));
 }
 
 function generate_world() {
-    create_tree(new Engine.vector(70, 70));
-    create_boulder(new Engine.vector(-100, 0));
+    /*create_tree(new Engine.vector(70, 70), random_rot());
+    create_boulder(new Engine.vector(-100, 0), random_rot());
+    create_boulder(new Engine.vector(-230, 0), random_rot());*/
+
+    for (let i=0; i<100; i++) {
+        create_tree(random_pos(), random_rot());
+        create_boulder(random_pos(), random_rot());
+    }
 }
 
 generate_world();

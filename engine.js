@@ -22,12 +22,12 @@ class vector {
 }
 
 class node {
-  constructor(position, rotation, radius, size, image) {
+  constructor(position, rotation, radius, size, type) {
     this.position = position;
     this.rotation = rotation;
     this.radius = radius;
     this.size = size;
-    this.image = image;
+    this.type = type;
 
     nodes.add(this);
   }
