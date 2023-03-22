@@ -34,22 +34,7 @@ var port = 8080;
 var max_player_speed = 500;
 
 function message(type, data, from) {
-    if (type === "init") {
-        let this_username = Engine.create_id();
-        let this_variant = 0;
-        if ("username" in data) {
-            this_username = data.username;
-            console.log(data.username);
-        }
-        if ("variant" in data) {
-            if (data.variant >= 0 < 1) {
-                this_variant = Math.round(data.variant);
-            }
-        }
-        from.username = this_username;
-        from.variant = this_variant;
-    }
-    else if (type === "movement") {
+    if (type === "movement") {
         if ("position" in data) {
             try {
                 let new_position = new Engine.vector(data.position.x, data.position.y);
@@ -95,34 +80,55 @@ var server = new WebSocket.Server({
 console.log("Server has started on port " + port);
 
 server.on("connection", function (socket, request) {
-    let this_player = new Engine.character(new Engine.vector(0, 0), 0, 0, Engine.create_id(), socket);
-    this_player.id = Engine.create_id();
-    characters.add(this_player);
-
-    socket.send(JSON.stringify({"type": "server_data", "data": {"fps": server_fps}}));
-	socket.send(JSON.stringify({"type": "world", "data": Array.from(nodes)}));
-	console.log("a client has connected");
 
 
-	socket.on("message", function(msg) {
+	/*socket.on("message", function(msg) {
 		let boffer = Buffer.from(msg);
 		let data = JSON.parse(decoder.write(boffer));
 		message(data.type, data.data, this_player);
-	});
-
-	socket.on("close", function() {
-		//characters = characters.filter(p => p.player.id !== thing.id);
-        let char_array = Array.from(characters);
-        for (let itr in char_array) {
-            let this_character = char_array[itr];
-            if (this_character.id === this_player.id) {
-                socket.close();
-                //this_player.destroy(); //doesn't work
-                characters.delete(this_character);
+	});*/
+    socket.on("message", function(msg) {
+        let boffer = Buffer.from(msg);
+		let data = JSON.parse(decoder.write(boffer));
+        if (data.type === "init") {  //character joins
+            let this_username = "Anonymous";
+            let this_variant = 0;
+            if ("username" in data.data) {
+                this_username = data.data.username;
             }
+            if ("variant" in data.data) {
+                if (data.data.variant >= 0 < game_data.character.variants.length) {
+                    this_variant = Math.round(data.data.variant);
+                }
+            }
+            let this_player = new Engine.character(new Engine.vector(0, 0), 0, 0, this_username, socket);
+            this_player.id = Engine.create_id();
+            characters.add(this_player);
+
+            socket.send(JSON.stringify({"type": "server_data", "data": {"fps": server_fps}}));
+            socket.send(JSON.stringify({"type": "world", "data": Array.from(nodes)}));
+            console.log(this_username + " joined the game");
+
+            socket.on("message", function(msg) {
+                let boffer = Buffer.from(msg);
+		        let data = JSON.parse(decoder.write(boffer));
+		        message(data.type, data.data, this_player);
+            });
+            socket.on("close", function() {
+                //characters = characters.filter(p => p.player.id !== thing.id);
+                let char_array = Array.from(characters);
+                for (let itr in char_array) {
+                    let this_character = char_array[itr];
+                    if (this_character.id === this_player.id) {
+                        socket.close();
+                        //this_player.destroy(); //doesn't work
+                        characters.delete(this_character);
+                    }
+                }
+                console.log(this_player.username + " has disconnected");
+            });
         }
-		console.log(this_player.username + " has disconnected");
-	});
+    });
 });
 
 function do_collisions() {
