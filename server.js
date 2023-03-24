@@ -43,7 +43,6 @@ function message(type, data, from) {
                     from.position.y = new_position.y;
                 }
                 else {
-                    //console.log(from.username + " moved too fast!");
                     var to_send = {
                         "type": "position_update",
                         "data": {
@@ -80,13 +79,6 @@ var server = new WebSocket.Server({
 console.log("Server has started on port " + port);
 
 server.on("connection", function (socket, request) {
-
-
-	/*socket.on("message", function(msg) {
-		let boffer = Buffer.from(msg);
-		let data = JSON.parse(decoder.write(boffer));
-		message(data.type, data.data, this_player);
-	});*/
     socket.on("message", function(msg) {
         let boffer = Buffer.from(msg);
 		let data = JSON.parse(decoder.write(boffer));
@@ -115,13 +107,11 @@ server.on("connection", function (socket, request) {
 		        message(data.type, data.data, this_player);
             });
             socket.on("close", function() {
-                //characters = characters.filter(p => p.player.id !== thing.id);
                 let char_array = Array.from(characters);
                 for (let itr in char_array) {
                     let this_character = char_array[itr];
                     if (this_character.id === this_player.id) {
                         socket.close();
-                        //this_player.destroy(); //doesn't work
                         characters.delete(this_character);
                     }
                 }
@@ -147,7 +137,6 @@ function server_tick() {
     for (let this_player_num in char_array) {
         let this_player = char_array[this_player_num];
         let other_players = new Array();
-        //console.log("got here");
         for (let testing_player_num in char_array) {
             let testing_player = char_array[testing_player_num];
             if (this_player.id != testing_player.id) {
@@ -163,7 +152,6 @@ function server_tick() {
                 }
             }
         }
-        //console.log(other_players);
         this_player.socket.send(JSON.stringify({"type": "other_players", "data": other_players}));
     }
 }
@@ -187,11 +175,7 @@ function create_tree(position, rotation) {
 }
 
 function generate_world() {
-    /*create_tree(new Engine.vector(70, 70), random_rot());
-    create_boulder(new Engine.vector(-100, 0), random_rot());
-    create_boulder(new Engine.vector(-230, 0), random_rot());*/
-
-    for (let i=0; i<100; i++) {
+        for (let i=0; i<100; i++) {
         create_tree(random_pos(), random_rot());
         create_boulder(random_pos(), random_rot());
     }
