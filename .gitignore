@@ -1,1 +1,2 @@
 node_modules/**
+engine.js #create a symlink to the cantriip engine
