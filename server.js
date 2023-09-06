@@ -64,7 +64,23 @@ function message(type, data, from) {
             from.rotation = data.rotation;
         }
     }
+    else if (type === "interact") {
+        //calculate circle of influence position
+        let circle_position = new Engine.vector(0, 30);
+        circle_position.rotate(from.rotation);
 
+        circle_position.add(from.position);
+        //console.log(circle_position);
+        influence_circle = {
+            "position": circle_position,
+            "radius": 50
+        }
+        nodes.forEach(function(itr, idx) {
+            if (influence_circle.position.distance_to(itr.position) <= influence_circle.radius+itr.radius) {
+                //console.log(from.username+" just hit a "+itr.type);
+            }
+        });
+    }
 
     else {
         console.log(from.username + ": Bad packet!");
@@ -175,10 +191,21 @@ function create_tree(position, rotation) {
 }
 
 function generate_world() {
-        for (let i=0; i<100; i++) {
-        create_tree(random_pos(), random_rot());
+    /*for (let i=0; i<100; i++) {
+        let new_tree_pos = random_pos();
+        let nodes_arr = Array.from(nodes);
+        for (test_node_itr in nodes_arr) {
+            let test_node = nodes_arr[test_node_itr];
+            //console.dir(test_node);
+            if (new_tree_pos.distance_to(test_node.position) > 70) {
+                create_tree(new_tree_pos, random_rot());
+            }
+        }
+
         create_boulder(random_pos(), random_rot());
-    }
+    }*/
+		create_tree(new Engine.vector(50, 50), 2)
+		create_boulder(new Engine.vector(-50, 50), 2)
 }
 
 generate_world();
